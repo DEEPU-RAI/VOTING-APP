@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vote for Your Favorite Season</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start; /* Align to top */
+            height: 100vh;
+            overflow: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        h1 {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 2.5em;
+        }
+        .vote-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .results {
+            margin-top: 30px;
+            background-color: rgba(255, 255, 255, 0.85);
+            border: 2px solid #ccc;
+            border-radius: 12px;
+            padding: 25px 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            backdrop-filter: blur(5px);
+        }
+        .results p {
+            font-size: 22px;
+            font-weight: 600;
+            color: #444;
+            margin: 12px 0;
+            letter-spacing: 0.5px;
+        }
+        .reset-button {
+            margin-top: 50px;
+            padding: 10px 20px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .reset-button:hover {
+            background-color: #e53935;
+        }
+
+        /* Fall */
+        .fall {
+            background-color: #ff7043;
+            background-image: url('https://www.w3schools.com/w3images/fall.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Spring */
+        .spring {
+            background-color: #a8e6cf;
+            background-image: url('https://www.w3schools.com/w3images/spring.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Summer */
+        .summer {
+            background-color: #ffe082;
+            background-image: url('https://www.w3schools.com/w3images/summer.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Winter */
+        .winter {
+            background-color: #4a90e2;
+            background-image: url('https://www.w3schools.com/w3images/winter.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Animations */
+        .fall-leaf, .spring-petal, .summer-ray, .snowflake {
+            position: absolute;
+            top: -50px;
+            opacity: 0.8;
+            pointer-events: none;
+        }
+
+        /* Fall Leaves Animation */
+        @keyframes fall-leaf {
+            0% {
+                transform: translateX(0) rotate(0);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Snowflakes Animation */
+        @keyframes snow {
+            0% {
+                transform: translateY(0);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(100vh);
+                opacity: 0;
+            }
+        }
+
+        /* Spring Petals Animation */
+        @keyframes spring-petal {
+            0% { transform: translateX(0) rotate(0); }
+            100% { transform: translateY(100vh) rotate(360deg); }
+        }
+
+        /* Summer Rays Animation */
+        @keyframes summer-ray {
+            0% { transform: translateX(0) rotate(0); }
+            100% { transform: translateY(100vh) rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="fall"> <!-- Default class is Fall, change it dynamically based on user vote -->
+    <h1>Vote for Your Favorite Season</h1>
+    <form method="post">
+        <div class="vote-buttons">
+            <button type="button" onclick="vote('Spring')">🌸 Spring</button>
+            <button type="button" onclick="vote('Summer')">☀️ Summer</button>
+            <button type="button" onclick="vote('Fall')">🍁 Fall</button>
+            <button type="button" onclick="vote('Winter')">❄️ Winter</button>
+        </div>
+    </form>
+    
+    <div class="results">
+        <p>Spring: <span id="spring-votes">0</span></p>
+        <p>Summer: <span id="summer-votes">0</span></p>
+        <p>Fall: <span id="fall-votes">0</span></p>
+        <p>Winter: <span id="winter-votes">0</span></p>
+    </div>
+
+    <!-- Falling Effects -->
+    <div id="fall-leaves"></div>
+    <div id="spring-petals"></div>
+    <div id="summer-rays"></div>
+    <div id="snowflakes"></div>
+
+    <form method="post" action="">
+        <button type="button" onclick="resetVotes()" class="reset-button">Reset Count</button>
+    </form>
+
+    <script>
+        // Initialize the vote counts from localStorage or set them to zero if not available
+        let votes = JSON.parse(localStorage.getItem('votes')) || {Spring: 0, Summer: 0, Fall: 0, Winter: 0};
+
+        // Display the current vote counts
+        function displayVotes() {
+            document.getElementById('spring-votes').textContent = votes.Spring;
+            document.getElementById('summer-votes').textContent = votes.Summer;
+            document.getElementById('fall-votes').textContent = votes.Fall;
+            document.getElementById('winter-votes').textContent = votes.Winter;
+        }
+
+        // Function to handle voting
+        function vote(season) {
+            votes[season]++;
+            localStorage.setItem('votes', JSON.stringify(votes)); // Save the updated vote counts
+            displayVotes(); // Update the vote display
+
+            // Change the background based on the selected season
+            document.body.className = season.toLowerCase();
+
+            // Show or hide animations based on the selected season
+            if (season === 'Fall') {
+                document.getElementById('fall-leaves').innerHTML = `
+                    <div class="fall-leaf" style="left: 10%; animation: fall-leaf 5s linear infinite;">🍁</div>
+                    <div class="fall-leaf" style="left: 30%; animation: fall-leaf 5s linear infinite;">🍂</div>
+                    <div class="fall-leaf" style="left: 50%; animation: fall-leaf 5s linear infinite;">🍃</div>
+                    <div class="fall-leaf" style="left: 70%; animation: fall-leaf 5s linear infinite;">🍂</div>
+                `;
+                document.getElementById('snowflakes').innerHTML = '';
+                document.getElementById('spring-petals').innerHTML = '';
+                document.getElementById('summer-rays').innerHTML = '';
+            } else if (season === 'Winter') {
+                document.getElementById('snowflakes').innerHTML = `
+                    <div class="snowflake" style="left: 10%; animation: snow 10s linear infinite;">❄️</div>
+                    <div class="snowflake" style="left: 25%; animation: snow 10s linear infinite;">❄️</div>
+                    <div class="snowflake" style="left: 40%; animation: snow 10s linear infinite;">❄️</div>
+                    <div class="snowflake" style="left: 60%; animation: snow 10s linear infinite;">❄️</div>
+                    <div class="snowflake" style="left: 80%; animation: snow 10s linear infinite;">❄️</div>
+                `;
+                document.getElementById('fall-leaves').innerHTML = '';
+                document.getElementById('spring-petals').innerHTML = '';
+                document.getElementById('summer-rays').innerHTML = '';
+            } else if (season === 'Spring') {
+                document.getElementById('spring-petals').innerHTML = `
+                    <div class="spring-petal" style="left: 10%; animation: spring-petal 5s linear infinite;">🌸</div>
+                    <div class="spring-petal" style="left: 30%; animation: spring-petal 5s linear infinite;">🌷</div>
+                    <div class="spring-petal" style="left: 50%; animation: spring-petal 5s linear infinite;">🌼</div>
+                `;
+                document.getElementById('fall-leaves').innerHTML = '';
+                document.getElementById('snowflakes').innerHTML = '';
+                document.getElementById('summer-rays').innerHTML = '';
+            } else if (season === 'Summer') {
+                document.getElementById('summer-rays').innerHTML = `
+                    <div class="summer-ray" style="left: 10%; animation: summer-ray 5s linear infinite;">☀️</div>
+                    <div class="summer-ray" style="left: 30%; animation: summer-ray 5s linear infinite;">🌞</div>
+                `;
+                document.getElementById('fall-leaves').innerHTML = '';
+                document.getElementById('snowflakes').innerHTML = '';
+                document.getElementById('spring-petals').innerHTML = '';
+            }
+        }
+
+        // Reset votes function
+        function resetVotes() {
+            votes = {Spring: 0, Summer: 0, Fall: 0, Winter: 0};
+            localStorage.setItem('votes', JSON.stringify(votes));
+            displayVotes();
+        }
+
+        // Initialize
+        displayVotes();
+    </script>
+</body>
+</html>
