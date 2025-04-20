@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: voting-app
-        image: image-registry.openshift-image-registry.svc:5000/YOUR_NAMESPACE/voting-app:latest
+        image-registry.openshift-image-registry.svc:5000/voting-app/voting-app:latest
         ports:
         - containerPort: 3000
 
